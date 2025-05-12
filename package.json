@@ -5,9 +5,10 @@
   "scripts": {
     "start:dev": "cross-env NODE_ENV=development ts-node-dev src/index.ts",
     "start:prod": "tsc && node dist/index.js",
+    "start:multi": "cross-env BALANCER=true ts-node-dev src/cluster.ts",
     "format": "prettier --write .",
     "lint": "eslint . --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
