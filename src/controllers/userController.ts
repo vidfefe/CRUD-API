@@ -2,9 +2,13 @@ import { IncomingMessage, ServerResponse } from "http";
 import { v4 as uuidv4 } from "uuid";
 import { usersDB } from "../models/userModel";
 
+const setJsonHeader = (res: ServerResponse) => {
+  res.setHeader("Content-Type", "application/json");
+};
+
 export const getAllUsers = (req: IncomingMessage, res: ServerResponse) => {
   res.statusCode = 200;
-  res.setHeader("Content-Type", "application/json");
+  setJsonHeader(res);
   res.end(JSON.stringify(usersDB));
 };
 
@@ -15,15 +19,18 @@ export const getUserById = (
 ) => {
   if (!isValidUUID(userId)) {
     res.statusCode = 400;
+    setJsonHeader(res);
     res.end(JSON.stringify({ message: "Invalid userId" }));
     return;
   }
   const user = usersDB.find((user) => user.id === userId);
   if (user) {
     res.statusCode = 200;
+    setJsonHeader(res);
     res.end(JSON.stringify(user));
   } else {
     res.statusCode = 404;
+    setJsonHeader(res);
     res.end(JSON.stringify({ message: "User not found" }));
   }
 };
@@ -39,15 +46,18 @@ export const createUser = (req: IncomingMessage, res: ServerResponse) => {
       const { username, age, hobbies } = JSON.parse(body);
       if (!username || !age || !hobbies) {
         res.statusCode = 400;
+        setJsonHeader(res);
         res.end(JSON.stringify({ message: "Missing required fields" }));
         return;
       }
       const newUser = { id: uuidv4(), username, age, hobbies };
       usersDB.push(newUser);
       res.statusCode = 201;
+      setJsonHeader(res);
       res.end(JSON.stringify(newUser));
     } catch (error) {
       res.statusCode = 500;
+      setJsonHeader(res);
       res.end(JSON.stringify({ message: "Internal server error" }));
     }
   });
@@ -60,6 +70,7 @@ export const updateUser = (
 ) => {
   if (!isValidUUID(userId)) {
     res.statusCode = 400;
+    setJsonHeader(res);
     res.end(JSON.stringify({ message: "Invalid userId" }));
     return;
   }
@@ -67,6 +78,7 @@ export const updateUser = (
   const user = usersDB.find((user) => user.id === userId);
   if (!user) {
     res.statusCode = 404;
+    setJsonHeader(res);
     res.end(JSON.stringify({ message: "User not found" }));
     return;
   }
@@ -83,9 +95,11 @@ export const updateUser = (
       if (age) user.age = age;
       if (hobbies) user.hobbies = hobbies;
       res.statusCode = 200;
+      setJsonHeader(res);
       res.end(JSON.stringify(user));
     } catch (error) {
       res.statusCode = 500;
+      setJsonHeader(res);
       res.end(JSON.stringify({ message: "Internal server error" }));
     }
   });
@@ -98,6 +112,7 @@ export const deleteUser = (
 ) => {
   if (!isValidUUID(userId)) {
     res.statusCode = 400;
+    setJsonHeader(res);
     res.end(JSON.stringify({ message: "Invalid userId" }));
     return;
   }
@@ -106,14 +121,15 @@ export const deleteUser = (
   if (index !== -1) {
     usersDB.splice(index, 1);
     res.statusCode = 204;
+    setJsonHeader(res);
     res.end();
   } else {
     res.statusCode = 404;
+    setJsonHeader(res);
     res.end(JSON.stringify({ message: "User not found" }));
   }
 };
 
-// Helper function to check UUID validity
 const isValidUUID = (id: string): boolean => {
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
